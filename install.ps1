@@ -13,10 +13,11 @@ Write-Log "Imported utilities successfully."
 
 # --- Module Execution ---
 
+# Debloat
+. "$ScriptRoot\scripts\01_debloat.ps1"
 # Install Packages (Winget)
-. "$ScriptRoot\scripts\01_packages.ps1"
+. "$ScriptRoot\scripts\02_packages.ps1"
 # Install Fonts
-. "$ScriptRoot\scripts\02_fonts.ps1"
-
+. "$ScriptRoot\scripts\03_fonts.ps1"
 # Final steps
 Write-Log "All modules executed successfully! Please restart your terminal/system."
