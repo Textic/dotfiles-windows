@@ -24,6 +24,7 @@ if (Request-Confirmation "Do you want to install the package list?") {
 		"Python.Launcher",
 		"Python.Python.3.14",
 		"Starship.Starship",
+		"WinsiderSS.SystemInformer",
         
 		# --- Editors ---
 		"Neovim.Neovim",
@@ -36,13 +37,13 @@ if (Request-Confirmation "Do you want to install the package list?") {
 		"Google.Antigravity",
 
 		# --- CLI Utilities ---
-		"Sharkdp.Fd", # fd (faster find)
-		"Junegunn.Fzf", # fzf for Windows
-		"voidtools.Everything",
-		"WinsiderSS.SystemInformer",
-		"Microsoft.PowerToys",
-
+		"sharkdp.fd", # fd (faster find)
+		"junegunn.fzf", # fzf for Windows
+		"aristocratos.btop4win",
+		
 		# --- Applications ---
+		"Microsoft.PowerToys",
+		"voidtools.Everything",
 		"RARLab.WinRAR",
 		"Google.GoogleDrive",
 		"Elgato.StreamDeck",
