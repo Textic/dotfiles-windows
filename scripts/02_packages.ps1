@@ -35,11 +35,12 @@ if (Request-Confirmation "Do you want to install the package list?") {
 		"Docker.DockerDesktop",
 		"Postman.Postman",
 		"Google.Antigravity",
-
+		
 		# --- CLI Utilities ---
 		"sharkdp.fd", # fd (faster find)
 		"junegunn.fzf", # fzf for Windows
 		"aristocratos.btop4win",
+		"Ngrok.Ngrok",
 		
 		# --- Applications ---
 		"Microsoft.PowerToys",
