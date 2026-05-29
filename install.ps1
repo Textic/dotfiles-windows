@@ -19,5 +19,9 @@ Write-Log "Imported utilities successfully."
 . "$ScriptRoot\scripts\02_packages.ps1"
 # Install Fonts
 . "$ScriptRoot\scripts\03_fonts.ps1"
+# Install Configurations
+. "$ScriptRoot\scripts\04_configs.ps1"
+# Individual Tweaks and Commands
+. "$ScriptRoot\scripts\05_tweaks.ps1"
 # Final steps
 Write-Log "All modules executed successfully! Please restart your terminal/system."
