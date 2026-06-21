@@ -20,12 +20,6 @@ if (-not (Get-Command "Request-Confirmation" -ErrorAction SilentlyContinue)) {
     }
 }
 
-function Test-IsAdmin {
-    $Identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $Principal = New-Object Security.Principal.WindowsPrincipal($Identity)
-    return $Principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
 $CommandsDir = Resolve-Path "$ScriptRoot\..\commands" -ErrorAction SilentlyContinue
 if (-not $CommandsDir) {
     $CommandsDir = "$ScriptRoot\..\commands"
@@ -57,7 +51,6 @@ function Run-TweaksWizard {
                     WhyDisable    = $Info.WhyDisable
                     Status        = $Info.Status
                     ShowStatus    = $Info.ShowStatus
-                    RequiresAdmin = $Info.RequiresAdmin
                 }
             }
         } catch {
@@ -154,18 +147,11 @@ function Run-TweaksWizard {
 
         # Ask user using standard Request-Confirmation from 00_utils.ps1
         if (Request-Confirmation $Question) {
-            # Check admin rights
-            $HasAdmin = Test-IsAdmin
-            if ($Tweak.RequiresAdmin -and -not $HasAdmin) {
-                Write-Host "[!] ERROR: This tweak requires Administrator privileges to be modified." -ForegroundColor Red
-                Write-Host "    Skipping optimization. Restart terminal as Administrator to apply." -ForegroundColor Yellow
+            Write-Host ""
+            if ($ActionToRun -eq "Disable") {
+                & $Tweak.FilePath -Disable
             } else {
-                Write-Host ""
-                if ($ActionToRun -eq "Disable") {
-                    & $Tweak.FilePath -Disable
-                } else {
-                    & $Tweak.FilePath -Enable
-                }
+                & $Tweak.FilePath -Enable
             }
             Start-Sleep -Seconds 2
         } else {

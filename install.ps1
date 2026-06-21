@@ -1,6 +1,24 @@
 # Ensure we stop on errors (similar to set -e in bash)
 $ErrorActionPreference = "Stop"
 
+# Check for Administrator privileges
+$Identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+$Principal = New-Object Security.Principal.WindowsPrincipal($Identity)
+$IsAdmin = $Principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (-not $IsAdmin) {
+    Clear-Host
+    Write-Host "==========================================================" -ForegroundColor Red
+    Write-Host "   ERROR: ADMINISTRATOR PRIVILEGES REQUIRED               " -ForegroundColor Red
+    Write-Host "==========================================================" -ForegroundColor Red
+    Write-Host "This installer must be run from an elevated PowerShell console." -ForegroundColor Yellow
+    Write-Host "Please close this window, right-click PowerShell, choose" -ForegroundColor Yellow
+    Write-Host "'Run as Administrator', and try again." -ForegroundColor Yellow
+    Write-Host ""
+    Read-Host "Press Enter to exit..."
+    exit 1
+}
+
 Clear-Host
 Write-Host "Starting modular installation for Windows..." -ForegroundColor Cyan
 

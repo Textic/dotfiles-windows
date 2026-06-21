@@ -86,7 +86,6 @@ if ($GetInfo) {
         WhyEnable     = $WhyEnable
         WhyDisable    = $WhyDisable
         Status        = (Get-CurrentStatus)
-        RequiresAdmin = $false
     }
     exit
 }

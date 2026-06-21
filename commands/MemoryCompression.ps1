@@ -22,12 +22,6 @@ $WhyDisable = @(
     "Your CPU is old or low-end but you have good RAM: If your processor struggles with daily tasks, removing the burden of memory compression will give it breathing room."
 )
 
-function Test-IsAdmin {
-    $Identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $Principal = New-Object Security.Principal.WindowsPrincipal($Identity)
-    return $Principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
 function Get-CurrentStatus {
     try {
         $Agent = Get-MMAgent -ErrorAction Stop
@@ -45,7 +39,6 @@ if ($GetInfo) {
         WhyDisable    = $WhyDisable
         Status        = (Get-CurrentStatus)
         ShowStatus    = $true
-        RequiresAdmin = $true
     }
     exit
 }
@@ -55,10 +48,6 @@ if ($Status) {
 }
 
 if ($Enable) {
-    if (-not (Test-IsAdmin)) {
-        Write-Error "This command requires Administrator privileges to be executed."
-        exit 1
-    }
     Write-Host "Enabling memory compression (Enable-MMAgent -MemoryCompression)..." -ForegroundColor Cyan
     try {
         Enable-MMAgent -MemoryCompression -ErrorAction Stop
@@ -71,10 +60,6 @@ if ($Enable) {
 }
 
 if ($Disable) {
-    if (-not (Test-IsAdmin)) {
-        Write-Error "This command requires Administrator privileges to be executed."
-        exit 1
-    }
     Write-Host "Disabling memory compression (Disable-MMAgent -MemoryCompression)..." -ForegroundColor Cyan
     try {
         Disable-MMAgent -MemoryCompression -ErrorAction Stop
