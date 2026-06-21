@@ -1,50 +1,53 @@
-$ErrorActionPreference = "Stop"
+# File: scripts/03_fonts.ps1
+# Description: Installs TTF and OTF fonts to the Windows Fonts directory.
 
-$ScriptRoot = $PSScriptRoot
-$FontsSource = Resolve-Path "$ScriptRoot\..\fonts"
+$ErrorActionPreference = "Stop"
 
 Write-Host "Starting Font Installation..." -ForegroundColor Cyan
 
-if (-not (Test-Path $FontsSource)) {
-    Write-Host "[ERROR] Fonts directory not found at: $FontsSource" -ForegroundColor Red
-    exit
-}
+if (Request-Confirmation "Do you want to install custom fonts?") {
+    $FontsSource = Resolve-Path "$PSScriptRoot\..\fonts" -ErrorAction SilentlyContinue
+    if (-not $FontsSource -or -not (Test-Path $FontsSource)) {
+        Write-Host "[ERROR] Fonts directory not found." -ForegroundColor Red
+        return
+    }
 
-$WindowsFontsDir = "C:\Windows\Fonts"
-$RegistryPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+    $WindowsFontsDir = "C:\Windows\Fonts"
+    $RegistryPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
 
-$FontFiles = Get-ChildItem -Path $FontsSource -Include "*.ttf", "*.otf" -Recurse
+    $FontFiles = Get-ChildItem -Path $FontsSource -Include "*.ttf", "*.otf" -Recurse
 
-if ($FontFiles.Count -eq 0) {
-    Write-Host "[INFO] No font files found to install." -ForegroundColor Yellow
-    exit
-}
+    if ($FontFiles.Count -eq 0) {
+        Write-Host "[INFO] No font files found to install." -ForegroundColor Yellow
+        return
+    }
 
-foreach ($FontFile in $FontFiles) {
-    $FontName = $FontFile.Name
-    
-    # Check if font is already in the Windows Fonts folder
-    if (-not (Test-Path "$WindowsFontsDir\$FontName")) {
-        try {
-            Write-Host "[INSTALL] Installing $FontName..." -ForegroundColor Green
-            
-            # 1. Copy the font file to the Windows Fonts directory
-            Copy-Item -Path $FontFile.FullName -Destination $WindowsFontsDir -Force
-            
-            # 2. Register the font in the Registry (Required for Windows to recognize it)
-            # We use the file name as the value unless it's a specific type like "TrueType"
-            $RegValue = $FontName
-            if ($FontFile.Extension -eq ".ttf") { $RegValue = "$FontName (TrueType)" }
-            
-            New-ItemProperty -Path $RegistryPath -Name $RegValue -Value $FontName -PropertyType String -Force | Out-Null
+    foreach ($FontFile in $FontFiles) {
+        $FontName = $FontFile.Name
+        
+        # Check if font is already in the Windows Fonts folder
+        if (-not (Test-Path "$WindowsFontsDir\$FontName")) {
+            try {
+                Write-Host "[INSTALL] Installing $FontName..." -ForegroundColor Green
+                
+                # 1. Copy the font file to the Windows Fonts directory
+                Copy-Item -Path $FontFile.FullName -Destination $WindowsFontsDir -Force
+                
+                # 2. Register the font in the Registry
+                $RegValue = $FontName
+                if ($FontFile.Extension -eq ".ttf") { $RegValue = "$FontName (TrueType)" }
+                
+                New-ItemProperty -Path $RegistryPath -Name $RegValue -Value $FontName -PropertyType String -Force | Out-Null
+            }
+            catch {
+                Write-Host "[ERROR] Failed to install $FontName. $_" -ForegroundColor Red
+            }
         }
-        catch {
-            Write-Host "[ERROR] Failed to install $FontName. $_" -ForegroundColor Red
+        else {
+            Write-Host "[SKIP] $FontName is already installed." -ForegroundColor DarkGray
         }
     }
-    else {
-        Write-Host "[SKIP] $FontName is already installed." -ForegroundColor DarkGray
-    }
+    Write-Host "Font installation complete." -ForegroundColor Green
+} else {
+    Write-Log "Skipping fonts."
 }
-
-Write-Host "Font installation complete." -ForegroundColor Green

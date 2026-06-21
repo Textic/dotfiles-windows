@@ -6,20 +6,20 @@ param(
 )
 
 # Metadata definitions
-$Name = "Compresion de Memoria (MMAgent)"
-$Description = "Administra la compresion de memoria virtual de Windows para ahorrar RAM o liberar CPU."
+$Name = "Memory Compression (MMAgent)"
+$Description = "Manages Windows virtual memory compression to save RAM or free up CPU."
 
 $WhyEnable = @(
-    "Tienes 8 GB o 16 GB de RAM: Con esta cantidad, la compresion es vital. Si la desactivas, Windows se quedara sin RAM fisica rapidamente y empezara a usar el disco duro (Pagefile), lo que ralentizara la PC por completo en cuanto abras muchas pestanas de navegador o un juego pesado.",
-    "Usas una Laptop y priorizas la bateria: Aunque la CPU trabaja un poco mas comprimiendo, evita que el disco duro se active constantemente para leer/escribir datos virtuales, lo que a menudo ahorra mas energia.",
-    "Uso general de la PC: Si juego de forma casual, trabajas en oficina, programas, o ves contenido multimedia, la compresion de Windows es muy eficiente y ni notaras que esta encendida."
+    "You have 8 GB or 16 GB of RAM: At this capacity, compression is vital. If disabled, Windows will quickly deplete physical RAM and fall back to the hard drive (Pagefile), heavily slowing down the PC as soon as you open multiple browser tabs or a heavy game.",
+    "You use a Laptop and prioritize battery life: Although the CPU works slightly harder during compression, it prevents the hard drive from active read/write virtualization cycles, which generally saves more battery power.",
+    "General PC usage: If you play casually, do office work, program, or watch media, Windows memory compression is highly efficient and you won't even notice it running."
 )
 
 $WhyDisable = @(
-    "Tienes mucha memoria RAM (32 GB o mas): Al tener RAM de sobra, no necesitas que Windows gaste recursos comprimiendola para ahorrar espacio.",
-    "Buscas exprimir los milisegundos en Gaming Competitivo: La compresion y descompresion de datos usa ciclos de la CPU. Desactivarlo puede eliminar ligeros tirones (stuttering) o caidas de FPS de un milisegundo (frametime drops) en juegos pesados.",
-    "Trabajas con Audio Profesional (DAWs): En la produccion musical en tiempo real, cualquier proceso en segundo plano de la CPU que cause latencia es un enemigo.",
-    "Tu procesador es viejo o de gama baja pero tienes buena RAM: Si la CPU sufre para procesar las tareas diarias, quitarle el peso de comprimir la memoria le dara un respiro."
+    "You have plenty of RAM (32 GB or more): With excess RAM, you don't need Windows wasting CPU cycles compressing memory to save space.",
+    "You seek to squeeze every millisecond in Competitive Gaming: Data compression and decompression consumes CPU cycles. Disabling it can eliminate micro-stuttering or millisecond frametime drops in demanding games.",
+    "You work with Professional Audio (DAWs): In real-time music production, any background CPU process causing latency is an enemy.",
+    "Your CPU is old or low-end but you have good RAM: If your processor struggles with daily tasks, removing the burden of memory compression will give it breathing room."
 )
 
 function Test-IsAdmin {
@@ -44,6 +44,7 @@ if ($GetInfo) {
         WhyEnable     = $WhyEnable
         WhyDisable    = $WhyDisable
         Status        = (Get-CurrentStatus)
+        ShowStatus    = $true
         RequiresAdmin = $true
     }
     exit
@@ -55,15 +56,15 @@ if ($Status) {
 
 if ($Enable) {
     if (-not (Test-IsAdmin)) {
-        Write-Error "Este comando requiere permisos de Administrador para ser ejecutado."
+        Write-Error "This command requires Administrator privileges to be executed."
         exit 1
     }
-    Write-Host "Activando compresion de memoria (Enable-MMAgent -MemoryCompression)..." -ForegroundColor Cyan
+    Write-Host "Enabling memory compression (Enable-MMAgent -MemoryCompression)..." -ForegroundColor Cyan
     try {
         Enable-MMAgent -MemoryCompression -ErrorAction Stop
-        Write-Host "Compresion de memoria activada exitosamente." -ForegroundColor Green
+        Write-Host "Memory compression enabled successfully." -ForegroundColor Green
     } catch {
-        Write-Error "Error al activar la compresion de memoria: $_"
+        Write-Error "Error enabling memory compression: $_"
         exit 1
     }
     exit
@@ -71,15 +72,15 @@ if ($Enable) {
 
 if ($Disable) {
     if (-not (Test-IsAdmin)) {
-        Write-Error "Este comando requiere permisos de Administrador para ser ejecutado."
+        Write-Error "This command requires Administrator privileges to be executed."
         exit 1
     }
-    Write-Host "Desactivando compresion de memoria (Disable-MMAgent -MemoryCompression)..." -ForegroundColor Cyan
+    Write-Host "Disabling memory compression (Disable-MMAgent -MemoryCompression)..." -ForegroundColor Cyan
     try {
         Disable-MMAgent -MemoryCompression -ErrorAction Stop
-        Write-Host "Compresion de memoria desactivada exitosamente." -ForegroundColor Green
+        Write-Host "Memory compression disabled successfully." -ForegroundColor Green
     } catch {
-        Write-Error "Error al desactivar la compresion de memoria: $_"
+        Write-Error "Error disabling memory compression: $_"
         exit 1
     }
     exit

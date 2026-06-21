@@ -10,7 +10,7 @@ if (Request-Confirmation "WARNING: Do you want to run the Debloat script (Remove
     try {
         # Your specific command from Debloat.ps1
         # It creates a restore point automatically (-CreateRestorePoint), which is good practice.
-        & ([scriptblock]::Create((Invoke-RestMethod "https://debloat.raphi.re/"))) -Silent -CreateRestorePoint -RemoveHPApps -RemoveApps -RemoveCommApps -RemoveW11Outlook -RemoveGamingApps -DisableDVR -DisableStartRecommended -DisableStartPhoneLink -DisableTelemetry -DisableSuggestions -DisableEdgeAds -DisableSettings365Ads -DisableBing -DisableCopilot -DisableRecall -DisableEdgeAI -DisablePaintAI -DisableNotepadAI -DisableMouseAcceleration -DisableStickyKeys -ShowHiddenFolders -ShowKnownFileExt -EnableDarkMode -HideSearchTb -HideTaskview -HideChat -DisableWidgets -EnableEndTask
+        & ([scriptblock]::Create((Invoke-RestMethod "https://debloat.raphi.re/"))) -Silent -CreateRestorePoint -RemoveHPApps -RemoveApps -RemoveCommApps -RemoveW11Outlook -RemoveGamingApps -DisableDVR -DisableStartRecommended -DisableStartPhoneLink -DisableTelemetry -DisableSuggestions -DisableEdgeAds -DisableSettings365Ads -DisableBing -DisableCopilot -DisableRecall -DisableEdgeAI -DisablePaintAI -DisableNotepadAI -DisableMouseAcceleration -DisableStickyKeys -ShowHiddenFolders -ShowKnownFileExt -EnableDarkMode -HideSearchTb -HideTaskview -HideChat -DisableWidgets -EnableEndTask -EnableWindowsSandbox
         
         Write-Log "Debloat process finished."
     }
