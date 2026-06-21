@@ -56,6 +56,7 @@ function Run-TweaksWizard {
                     WhyEnable     = $Info.WhyEnable
                     WhyDisable    = $Info.WhyDisable
                     Status        = $Info.Status
+                    ShowStatus    = $Info.ShowStatus
                     RequiresAdmin = $Info.RequiresAdmin
                 }
             }
@@ -71,19 +72,41 @@ function Run-TweaksWizard {
     for ($i = 0; $i -lt $Count; $i++) {
         $Tweak = $TweaksList[$i]
         $Step = $i + 1
+        $HasStatus = $Tweak.ShowStatus -eq $true
 
-        $StatusStr = "INACTIVE"
-        $StatusColor = "Yellow"
-        if ($Tweak.Status) {
-            $StatusStr = "ACTIVE"
-            $StatusColor = "Green"
+        if ($Global:Unattended) {
+            Write-Host "--- Tweak ($Step/$Count): $($Tweak.Name) ---" -ForegroundColor Cyan
+            if ($HasStatus) {
+                if ($Tweak.Status) {
+                    Write-Host "Current Status: [ACTIVE] -> Skipping." -ForegroundColor Green
+                } else {
+                    Write-Host "Current Status: [INACTIVE] -> Auto-enabling." -ForegroundColor Yellow
+                    & $Tweak.FilePath -Enable
+                }
+            } else {
+                Write-Host "Auto-applying settings..." -ForegroundColor Yellow
+                & $Tweak.FilePath -Enable
+            }
+            Write-Host ""
+            Start-Sleep -Seconds 1
+            continue
         }
 
         # Print Tweak Header
         Write-Host "--- Tweak ($Step/$Count): $($Tweak.Name) ---" -ForegroundColor Cyan
         Write-Host "Description: $($Tweak.Description)" -ForegroundColor White
-        Write-Host "Current Status: " -NoNewline -ForegroundColor DarkGray
-        Write-Host "[$StatusStr]" -ForegroundColor $StatusColor
+
+        # Status
+        if ($HasStatus) {
+            $StatusStr = "INACTIVE"
+            $StatusColor = "Yellow"
+            if ($Tweak.Status) {
+                $StatusStr = "ACTIVE"
+                $StatusColor = "Green"
+            }
+            Write-Host "Current Status: " -NoNewline -ForegroundColor DarkGray
+            Write-Host "[$StatusStr]" -ForegroundColor $StatusColor
+        }
         Write-Host ""
 
         # Why Enable
@@ -114,13 +137,18 @@ function Run-TweaksWizard {
         }
         Write-Host ""
 
-        # Formulate confirmation question based on Current Status
+        # Formulate confirmation question based on ShowStatus and Current Status
         $ActionToRun = "Enable"
-        if ($Tweak.Status) {
-            $Question = "Do you want to DISABLE '$($Tweak.Name)'?"
-            $ActionToRun = "Disable"
+        if ($HasStatus) {
+            if ($Tweak.Status) {
+                $Question = "Do you want to DISABLE '$($Tweak.Name)'?"
+                $ActionToRun = "Disable"
+            } else {
+                $Question = "Do you want to ENABLE '$($Tweak.Name)'?"
+                $ActionToRun = "Enable"
+            }
         } else {
-            $Question = "Do you want to ENABLE '$($Tweak.Name)'?"
+            $Question = "Do you want to apply the '$($Tweak.Name)' settings?"
             $ActionToRun = "Enable"
         }
 

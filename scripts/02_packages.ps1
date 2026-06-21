@@ -3,11 +3,11 @@ Write-Log "Starting package installation..."
 if (Request-Confirmation "Do you want to upgrade ALL currently installed applications first?") {
     Write-Log "Upgrading installed packages..."
     try {
-		# --all: Upgrades all packages
-        # --include-unknown: Tries to upgrade even if winget is not 100% sure of the version
-		# --accept-source-agreements: Auto-accept license
-		# --accept-package-agreements: Auto-accept package license
-        winget upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements
+        $UpgradeArgs = @("upgrade", "--all", "--include-unknown", "--accept-source-agreements", "--accept-package-agreements")
+        if (-not $Global:Unattended) {
+            $UpgradeArgs += "--silent"
+        }
+        winget $UpgradeArgs
         Write-Log "System upgrade finished."
     } catch {
         Write-Host "  [WARN] Some upgrades might have failed or required interaction." -ForegroundColor Yellow
@@ -61,7 +61,11 @@ if (Request-Confirmation "Do you want to install the package list?") {
 			# Check if installed (simple check, winget handles updates too)
 			# --accept-source-agreements: Auto-accept license
 			# --accept-package-agreements: Auto-accept package license
-			winget install -e --id $Pkg --accept-source-agreements --accept-package-agreements
+			$InstallArgs = @("install", "-e", "--id", $Pkg, "--accept-source-agreements", "--accept-package-agreements")
+			if (-not $Global:Unattended) {
+				$InstallArgs += "--silent"
+			}
+			winget $InstallArgs
 		}
 		catch {
 			Write-Host "  [WARN] Issue installing $Pkg (might be already installed or network error)." -ForegroundColor Red
