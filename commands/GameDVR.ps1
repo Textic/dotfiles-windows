@@ -59,11 +59,11 @@ if ($Enable) {
         if (-not (Test-Path $Path)) {
             New-Item -Path "HKCU:\System" -Name "GameConfigStore" -Force | Out-Null
         }
-        Set-ItemProperty -Path $Path -Name "GameDVR_Enabled" -Value 0 -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "GameDVR_FSEBehaviorMode" -Value 2 -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "GameDVR_HonorUserFSEBehaviorMode" -Value 0 -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Value 0 -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "GameDVR_EFSEFeatureFlags" -Value 0 -PropertyType DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_Enabled" -Value 0 -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_FSEBehaviorMode" -Value 2 -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_HonorUserFSEBehaviorMode" -Value 0 -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Value 0 -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_EFSEFeatureFlags" -Value 0 -Type DWord -Force
         Write-Host "Xbox Game DVR and screen overlays disabled successfully." -ForegroundColor Green
     } catch {
         Write-Error "Failed to disable Xbox Game DVR: $_"
@@ -79,11 +79,11 @@ if ($Disable) {
         if (-not (Test-Path $Path)) {
             New-Item -Path "HKCU:\System" -Name "GameConfigStore" -Force | Out-Null
         }
-        Set-ItemProperty -Path $Path -Name "GameDVR_Enabled" -Value 1 -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "GameDVR_FSEBehaviorMode" -Value 0 -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "GameDVR_HonorUserFSEBehaviorMode" -Value 0 -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Value 0 -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "GameDVR_EFSEFeatureFlags" -Value 0 -PropertyType DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_Enabled" -Value 1 -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_FSEBehaviorMode" -Value 0 -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_HonorUserFSEBehaviorMode" -Value 0 -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Value 0 -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "GameDVR_EFSEFeatureFlags" -Value 0 -Type DWord -Force
         Write-Host "Xbox Game DVR enabled and defaults restored successfully." -ForegroundColor Green
     } catch {
         Write-Error "Failed to restore Xbox Game DVR settings: $_"

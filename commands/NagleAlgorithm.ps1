@@ -79,9 +79,9 @@ if ($Enable) {
             $Guid = $Adapter.InterfaceGUID
             $Path = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$Guid"
             if (Test-Path $Path) {
-                Set-ItemProperty -Path $Path -Name "TcpAckFrequency" -Value 1 -PropertyType DWord -Force
-                Set-ItemProperty -Path $Path -Name "TCPNoDelay" -Value 1 -PropertyType DWord -Force
-                Set-ItemProperty -Path $Path -Name "TcpDelAckTicks" -Value 0 -PropertyType DWord -Force
+                Set-ItemProperty -Path $Path -Name "TcpAckFrequency" -Value 1 -Type DWord -Force
+                Set-ItemProperty -Path $Path -Name "TCPNoDelay" -Value 1 -Type DWord -Force
+                Set-ItemProperty -Path $Path -Name "TcpDelAckTicks" -Value 0 -Type DWord -Force
                 Write-Host "  Optimized adapter: $($Adapter.Name) ($Guid)" -ForegroundColor Gray
             }
         }

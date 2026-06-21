@@ -55,8 +55,8 @@ if ($Enable) {
     Write-Host "Disabling network throttling and maximizing system responsiveness..." -ForegroundColor Cyan
     try {
         $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
-        Set-ItemProperty -Path $Path -Name "NetworkThrottlingIndex" -Value 0xffffffff -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "SystemResponsiveness" -Value 0 -PropertyType DWord -Force
+        Set-ItemProperty -Path $Path -Name "NetworkThrottlingIndex" -Value 0xffffffff -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "SystemResponsiveness" -Value 0 -Type DWord -Force
         Write-Host "Network throttling disabled and system responsiveness optimized successfully." -ForegroundColor Green
     } catch {
         Write-Error "Failed to optimize network and system responsiveness: $_"
@@ -69,8 +69,8 @@ if ($Disable) {
     Write-Host "Restoring default network throttling and system responsiveness values..." -ForegroundColor Cyan
     try {
         $Path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
-        Set-ItemProperty -Path $Path -Name "NetworkThrottlingIndex" -Value 10 -PropertyType DWord -Force
-        Set-ItemProperty -Path $Path -Name "SystemResponsiveness" -Value 20 -PropertyType DWord -Force
+        Set-ItemProperty -Path $Path -Name "NetworkThrottlingIndex" -Value 10 -Type DWord -Force
+        Set-ItemProperty -Path $Path -Name "SystemResponsiveness" -Value 20 -Type DWord -Force
         Write-Host "Network throttling and system responsiveness restored to default successfully." -ForegroundColor Green
     } catch {
         Write-Error "Failed to restore network and system responsiveness: $_"
