@@ -6,29 +6,23 @@ param(
 )
 
 # Metadata definitions
-$Name = "Shutdown Wait To Kill Timeouts"
-$Description = "Sets the timeout (in milliseconds) Windows waits for services and user applications to stop before forcing termination during shutdown."
+$Name = "Service Shutdown Timeout"
+$Description = "Configures the timeout Windows waits for system services to stop before forcing termination during shutdown."
 
 $WhyEnable = @(
-    "Faster Shutdown: Reduces wait times to 2000ms (2 seconds), allowing Windows to shut down much quicker.",
-    "Services & Apps: Configures both system services (WaitToKillServiceTimeout) and user applications (WaitToKillAppTimeout, HungAppTimeout).",
-    "Prevents Hangs: Forces unresponsive software and services to terminate sooner instead of keeping the PC stuck on the shutdown screen."
+    "Faster Shutdown: Reduces the service wait time to 2000ms (2 seconds), allowing Windows to shut down much quicker.",
+    "Prevents Hangs: Forces unresponsive services to terminate sooner instead of keeping the PC stuck on the shutdown screen."
 )
 
 $WhyDisable = @(
-    "Safe Shutdown: Restores the default 5000ms (5 seconds) timeout for services and removes custom app termination limits, giving processes more time to save data."
+    "Safe Shutdown: Restores the default 5000ms (5 seconds) timeout for services, giving them more time to complete saving data."
 )
 
 function Get-CurrentStatus {
     try {
-        $ServicePath = "HKLM:\SYSTEM\CurrentControlSet\Control"
-        $AppPath = "HKCU:\Control Panel\Desktop"
-        
-        $ServiceTimeout = Get-ItemPropertyValue -Path $ServicePath -Name "WaitToKillServiceTimeout" -ErrorAction SilentlyContinue
-        $AppTimeout = Get-ItemPropertyValue -Path $AppPath -Name "WaitToKillAppTimeout" -ErrorAction SilentlyContinue
-        $HungTimeout = Get-ItemPropertyValue -Path $AppPath -Name "HungAppTimeout" -ErrorAction SilentlyContinue
-        
-        if ($ServiceTimeout -eq "2000" -and $AppTimeout -eq "2000" -and $HungTimeout -eq "2000") {
+        $Path = "HKLM:\SYSTEM\CurrentControlSet\Control"
+        $Timeout = Get-ItemPropertyValue -Path $Path -Name "WaitToKillServiceTimeout" -ErrorAction Stop
+        if ($Timeout -eq "2000") {
             return $true
         }
         return $false
@@ -54,36 +48,26 @@ if ($Status) {
 }
 
 if ($Enable) {
-    Write-Host "Reducing shutdown timeouts to 2000ms for services and applications..." -ForegroundColor Cyan
+    Write-Host "Reducing service shutdown timeout to 2000ms..." -ForegroundColor Cyan
     try {
-        # 1. System Services (HKLM)
-        Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "WaitToKillServiceTimeout" -Value "2000" -Force
-        
-        # 2. User Applications (HKCU)
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WaitToKillAppTimeout" -Value "2000" -Force
-        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "HungAppTimeout" -Value "2000" -Force
-        
-        Write-Host "Shutdown timeouts updated successfully." -ForegroundColor Green
+        $Path = "HKLM:\SYSTEM\CurrentControlSet\Control"
+        Set-ItemProperty -Path $Path -Name "WaitToKillServiceTimeout" -Value "2000" -Force
+        Write-Host "Service shutdown timeout updated successfully." -ForegroundColor Green
     } catch {
-        Write-Error "Failed to update shutdown timeouts: $_"
+        Write-Error "Failed to update service shutdown timeout: $_"
         exit 1
     }
     exit
 }
 
 if ($Disable) {
-    Write-Host "Restoring default shutdown timeouts..." -ForegroundColor Cyan
+    Write-Host "Restoring default service shutdown timeout..." -ForegroundColor Cyan
     try {
-        # 1. Restore Services to default 5000ms
-        Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "WaitToKillServiceTimeout" -Value "5000" -Force
-        
-        # 2. Remove custom App timeouts to restore Windows defaults
-        Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WaitToKillAppTimeout" -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "HungAppTimeout" -ErrorAction SilentlyContinue
-        
-        Write-Host "Shutdown timeouts restored to default successfully." -ForegroundColor Green
+        $Path = "HKLM:\SYSTEM\CurrentControlSet\Control"
+        Set-ItemProperty -Path $Path -Name "WaitToKillServiceTimeout" -Value "5000" -Force
+        Write-Host "Service shutdown timeout restored to default successfully." -ForegroundColor Green
     } catch {
-        Write-Error "Failed to restore shutdown timeouts: $_"
+        Write-Error "Failed to restore service shutdown timeout: $_"
         exit 1
     }
     exit

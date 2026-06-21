@@ -30,7 +30,7 @@ if (-not (Test-Path $CommandsDir)) {
     New-Item -ItemType Directory -Path $CommandsDir -Force | Out-Null
 }
 
-function Run-TweaksWizard {
+function Invoke-TweaksWizard {
     # Scan for commands
     $TweakFiles = Get-ChildItem -Path $CommandsDir -Filter "*.ps1"
     if ($TweakFiles.Count -eq 0) {
@@ -165,4 +165,4 @@ function Run-TweaksWizard {
 }
 
 # Run the sequential wizard!
-Run-TweaksWizard
+Invoke-TweaksWizard
