@@ -18,11 +18,7 @@ if (Request-Confirmation "Do you want to install the package list?") {
 	$Packages = @(
 		# --- Core Tools ---
 		"Git.Git",
-		"CoreyButler.NVMforWindows",
-		"OpenJS.NodeJS",
 		"Microsoft.PowerShell",
-		"Python.Launcher",
-		"Python.Python.3.14",
 		"Starship.Starship",
 		"WinsiderSS.SystemInformer",
         
@@ -34,12 +30,8 @@ if (Request-Confirmation "Do you want to install the package list?") {
 		"DBeaver.DBeaver.Community",
 		"Docker.DockerDesktop",
 		"Postman.Postman",
-		"Google.Antigravity",
 		
 		# --- CLI Utilities ---
-		"sharkdp.fd", # fd (faster find)
-		"junegunn.fzf", # fzf for Windows
-		"aristocratos.btop4win",
 		"Ngrok.Ngrok",
 		
 		# --- Applications ---
