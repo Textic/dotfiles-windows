@@ -7,16 +7,20 @@ $Principal = New-Object Security.Principal.WindowsPrincipal($Identity)
 $IsAdmin = $Principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 if (-not $IsAdmin) {
-    Clear-Host
-    Write-Host "==========================================================" -ForegroundColor Red
-    Write-Host "   ERROR: ADMINISTRATOR PRIVILEGES REQUIRED               " -ForegroundColor Red
-    Write-Host "==========================================================" -ForegroundColor Red
-    Write-Host "This installer must be run from an elevated PowerShell console." -ForegroundColor Yellow
-    Write-Host "Please close this window, right-click PowerShell, choose" -ForegroundColor Yellow
-    Write-Host "'Run as Administrator', and try again." -ForegroundColor Yellow
-    Write-Host ""
-    Read-Host "Press Enter to exit..."
-    exit 1
+    Write-Host "Administrator privileges are required to run this installer." -ForegroundColor Yellow
+    Write-Host "Attempting to elevate..." -ForegroundColor Yellow
+    try {
+        # Relaunch script with administrator privileges
+        $Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        Start-Process -FilePath "powershell.exe" -ArgumentList $Arguments -Verb RunAs -ErrorAction Stop
+        exit 0
+    } catch {
+        Write-Host "UAC elevation request was denied or failed." -ForegroundColor Red
+        Write-Host "Please run this script from an elevated PowerShell window (Run as Administrator)." -ForegroundColor Red
+        Write-Host ""
+        Read-Host "Press Enter to exit..."
+        exit 1
+    }
 }
 
 Clear-Host
