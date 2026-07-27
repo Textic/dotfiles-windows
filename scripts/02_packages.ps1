@@ -33,6 +33,7 @@ if (Request-Confirmation "Do you want to install the package list?") {
 		
 		# --- CLI Utilities ---
 		"Ngrok.Ngrok",
+		"GitHub.cli"
 		
 		# --- Applications ---
 		"Microsoft.PowerToys",
