@@ -12,17 +12,5 @@ if (Get-Command "Ensure-Admin" -ErrorAction SilentlyContinue) { Ensure-Admin }
 
 Write-Log "Starting small tweaks module..."
 
-if (Request-Confirmation "Do you want to apply small system tweaks (e.g. hide desktop build watermark)?") {
-    try {
-        # 1. Hide Windows desktop build watermark (PaintDesktopVersion = 0)
-        $DesktopPath = "HKCU:\Control Panel\Desktop"
-        Set-ItemProperty -Path $DesktopPath -Name "PaintDesktopVersion" -Value 0 -Type DWord -Force
-        Write-Host "  * Windows desktop watermark hidden (PaintDesktopVersion = 0)." -ForegroundColor Green
-
-        Write-Log "Small tweaks applied successfully."
-    } catch {
-        Write-Host "  [ERROR] Failed to apply small tweaks: $_" -ForegroundColor Red
-    }
-} else {
-    Write-Log "Skipping small tweaks."
-}
+# Placeholder for future minor tweaks
+Write-Log "No small tweaks currently configured."
