@@ -29,10 +29,15 @@ function Ensure-Admin {
     $IsAdmin = $Principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
     if (-not $IsAdmin) {
+        # Determine caller script path
+        $TargetPath = $MyInvocation.ScriptName
+        if (-not $TargetPath) { $TargetPath = $PSCommandPath }
+        if (-not $TargetPath) { $TargetPath = $MyInvocation.MyCommand.Path }
+
         Write-Host "Administrator privileges are required for this script." -ForegroundColor Yellow
         Write-Host "Attempting to elevate..." -ForegroundColor Yellow
         try {
-            $Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+            $Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$TargetPath`""
             Start-Process -FilePath "powershell.exe" -ArgumentList $Arguments -Verb RunAs -ErrorAction Stop
             exit 0
         } catch {

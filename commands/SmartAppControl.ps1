@@ -78,3 +78,52 @@ if ($Disable) {
     }
     exit
 }
+
+# Interactive fallback when executed directly without parameters
+if (-not $PSBoundParameters.Count) {
+    $ScriptRoot = $PSScriptRoot
+    if (-not (Get-Command "Write-Log" -ErrorAction SilentlyContinue)) {
+        if (Test-Path "$ScriptRoot\..\scripts\00_utils.ps1") {
+            . "$ScriptRoot\..\scripts\00_utils.ps1"
+        }
+    }
+    if (Get-Command "Ensure-Admin" -ErrorAction SilentlyContinue) { Ensure-Admin }
+
+    $Current = Get-CurrentStatus
+    Write-Host "--- Tweak: $Name ---" -ForegroundColor Cyan
+    Write-Host "Description: $Description" -ForegroundColor White
+
+    $StatusStr = if ($Current) { "ACTIVE" } else { "INACTIVE" }
+    $StatusColor = if ($Current) { "Green" } else { "Yellow" }
+    Write-Host "Current Status: [$StatusStr]" -ForegroundColor $StatusColor
+    Write-Host ""
+
+    Write-Host "[+] WHEN YOU SHOULD ENABLE IT:" -ForegroundColor Green
+    foreach ($Point in $WhyEnable) { Write-Host "  * $Point" -ForegroundColor Gray }
+    Write-Host ""
+
+    Write-Host "[-] WHEN YOU SHOULD DISABLE IT:" -ForegroundColor Red
+    foreach ($Point in $WhyDisable) { Write-Host "  * $Point" -ForegroundColor Gray }
+    Write-Host ""
+
+    $Question = if ($Current) { "Do you want to DISABLE '$Name'?" } else { "Do you want to ENABLE '$Name'?" }
+    $ActionToRun = if ($Current) { "-Disable" } else { "-Enable" }
+
+    if (Get-Command "Request-Confirmation" -ErrorAction SilentlyContinue) {
+        $Confirmed = Request-Confirmation $Question
+    } else {
+        $Choice = Read-Host "$Question (y/n)"
+        $Confirmed = $Choice -match "^(y|Y)$"
+    }
+
+    if ($Confirmed) {
+        Write-Host ""
+        if ($ActionToRun -eq "-Disable") {
+            & $PSCommandPath -Disable
+        } else {
+            & $PSCommandPath -Enable
+        }
+    } else {
+        Write-Host "Skipping tweak '$Name'." -ForegroundColor Yellow
+    }
+}

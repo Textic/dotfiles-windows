@@ -43,3 +43,5 @@ Start-Sleep -Seconds 1
 . "$PSScriptRoot\scripts\06_small_tweaks.ps1"
 # Final steps
 Write-Log "All modules executed successfully! Please restart your terminal/system."
+Write-Host ""
+Read-Host "Press Enter to exit..."

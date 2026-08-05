@@ -117,3 +117,42 @@ if ($Disable) {
     }
     exit
 }
+
+# Interactive fallback when executed directly without parameters
+if (-not $PSBoundParameters.Count) {
+    $ScriptRoot = $PSScriptRoot
+    if (-not (Get-Command "Write-Log" -ErrorAction SilentlyContinue)) {
+        if (Test-Path "$ScriptRoot\..\scripts\00_utils.ps1") {
+            . "$ScriptRoot\..\scripts\00_utils.ps1"
+        }
+    }
+    if (Get-Command "Ensure-Admin" -ErrorAction SilentlyContinue) { Ensure-Admin }
+
+    Write-Host "--- Tweak: $Name ---" -ForegroundColor Cyan
+    Write-Host "Description: $Description" -ForegroundColor White
+    Write-Host ""
+
+    Write-Host "[+] WHEN YOU SHOULD ENABLE IT:" -ForegroundColor Green
+    foreach ($Point in $WhyEnable) { Write-Host "  * $Point" -ForegroundColor Gray }
+    Write-Host ""
+
+    Write-Host "[-] WHEN YOU SHOULD DISABLE IT:" -ForegroundColor Red
+    foreach ($Point in $WhyDisable) { Write-Host "  * $Point" -ForegroundColor Gray }
+    Write-Host ""
+
+    $Question = "Do you want to apply the '$Name' settings?"
+
+    if (Get-Command "Request-Confirmation" -ErrorAction SilentlyContinue) {
+        $Confirmed = Request-Confirmation $Question
+    } else {
+        $Choice = Read-Host "$Question (y/n)"
+        $Confirmed = $Choice -match "^(y|Y)$"
+    }
+
+    if ($Confirmed) {
+        Write-Host ""
+        & $PSCommandPath -Enable
+    } else {
+        Write-Host "Skipping tweak '$Name'." -ForegroundColor Yellow
+    }
+}
