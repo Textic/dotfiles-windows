@@ -1,33 +1,12 @@
 # Ensure we stop on errors (similar to set -e in bash)
 $ErrorActionPreference = "Stop"
 
-# Check for Administrator privileges
-$Identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-$Principal = New-Object Security.Principal.WindowsPrincipal($Identity)
-$IsAdmin = $Principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-
-if (-not $IsAdmin) {
-    Write-Host "Administrator privileges are required to run this installer." -ForegroundColor Yellow
-    Write-Host "Attempting to elevate..." -ForegroundColor Yellow
-    try {
-        # Relaunch script with administrator privileges
-        $Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
-        Start-Process -FilePath "powershell.exe" -ArgumentList $Arguments -Verb RunAs -ErrorAction Stop
-        exit 0
-    } catch {
-        Write-Host "UAC elevation request was denied or failed." -ForegroundColor Red
-        Write-Host "Please run this script from an elevated PowerShell window (Run as Administrator)." -ForegroundColor Red
-        Write-Host ""
-        Read-Host "Press Enter to exit..."
-        exit 1
-    }
-}
+# Import utilities and ensure Administrator privileges
+. "$PSScriptRoot\scripts\00_utils.ps1"
+Ensure-Admin
 
 Clear-Host
 Write-Host "Starting modular installation for Windows..." -ForegroundColor Cyan
-
-# Import utilities
-. "$PSScriptRoot\scripts\00_utils.ps1"
 
 Write-Log "Imported utilities successfully."
 
@@ -60,5 +39,7 @@ Start-Sleep -Seconds 1
 . "$PSScriptRoot\scripts\04_configs.ps1"
 # Individual Tweaks and Commands
 . "$PSScriptRoot\scripts\05_tweaks.ps1"
+# Small Miscellaneous Tweaks
+. "$PSScriptRoot\scripts\06_small_tweaks.ps1"
 # Final steps
 Write-Log "All modules executed successfully! Please restart your terminal/system."

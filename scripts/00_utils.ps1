@@ -22,3 +22,25 @@ function Request-Confirmation {
     }
     return $false
 }
+
+function Ensure-Admin {
+    $Identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $Principal = New-Object Security.Principal.WindowsPrincipal($Identity)
+    $IsAdmin = $Principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+    if (-not $IsAdmin) {
+        Write-Host "Administrator privileges are required for this script." -ForegroundColor Yellow
+        Write-Host "Attempting to elevate..." -ForegroundColor Yellow
+        try {
+            $Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+            Start-Process -FilePath "powershell.exe" -ArgumentList $Arguments -Verb RunAs -ErrorAction Stop
+            exit 0
+        } catch {
+            Write-Host "UAC elevation request was denied or failed." -ForegroundColor Red
+            Write-Host "Please run this script from an elevated PowerShell window (Run as Administrator)." -ForegroundColor Red
+            Write-Host ""
+            Read-Host "Press Enter to exit..."
+            exit 1
+        }
+    }
+}

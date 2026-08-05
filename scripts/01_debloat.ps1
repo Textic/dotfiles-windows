@@ -1,6 +1,11 @@
-# File: scripts/03_debloat.ps1
-# Description: Runs the specified Windows Debloat command.
-# Warning: This downloads and runs a script from the internet.
+# Ensure utilities and administrator privileges
+$ScriptRoot = $PSScriptRoot
+if (-not (Get-Command "Write-Log" -ErrorAction SilentlyContinue)) {
+    if (Test-Path "$ScriptRoot\00_utils.ps1") {
+        . "$ScriptRoot\00_utils.ps1"
+    }
+}
+if (Get-Command "Ensure-Admin" -ErrorAction SilentlyContinue) { Ensure-Admin }
 
 Write-Log "Starting Windows Debloat module..."
 

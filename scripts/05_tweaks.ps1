@@ -2,23 +2,14 @@
 # Description: Sequential wizard to manage individual commands and system tweaks.
 # Equips dotfiles with a step-by-step interactive optimizer using repository standards.
 
-# Ensure utilities are imported
+# Ensure utilities and administrator privileges
 $ScriptRoot = $PSScriptRoot
 if (-not (Get-Command "Write-Log" -ErrorAction SilentlyContinue)) {
     if (Test-Path "$ScriptRoot\00_utils.ps1") {
         . "$ScriptRoot\00_utils.ps1"
-    } else {
-        function Write-Log { param($Message) Write-Host "[$(Get-Date -Format 'HH:mm:ss')] [INFO] $Message" -ForegroundColor Yellow }
     }
 }
-
-if (-not (Get-Command "Request-Confirmation" -ErrorAction SilentlyContinue)) {
-    if (Test-Path "$ScriptRoot\00_utils.ps1") {
-        . "$ScriptRoot\00_utils.ps1"
-    } else {
-        function Request-Confirmation { param($Question) $Choice = Read-Host "$Question (y/n)"; return $Choice -match "^(y|Y)$" }
-    }
-}
+if (Get-Command "Ensure-Admin" -ErrorAction SilentlyContinue) { Ensure-Admin }
 
 $CommandsDir = Resolve-Path "$ScriptRoot\..\commands" -ErrorAction SilentlyContinue
 if (-not $CommandsDir) {

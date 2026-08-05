@@ -1,3 +1,12 @@
+# Ensure utilities and administrator privileges
+$ScriptRoot = $PSScriptRoot
+if (-not (Get-Command "Write-Log" -ErrorAction SilentlyContinue)) {
+    if (Test-Path "$ScriptRoot\00_utils.ps1") {
+        . "$ScriptRoot\00_utils.ps1"
+    }
+}
+if (Get-Command "Ensure-Admin" -ErrorAction SilentlyContinue) { Ensure-Admin }
+
 Write-Log "Starting configuration files installation..."
 
 if (Request-Confirmation "Do you want to install configurations (e.g., Windows Terminal settings.json)?") {
