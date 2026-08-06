@@ -13,7 +13,9 @@ if (Request-Confirmation "Do you want to upgrade ALL currently installed applica
     Write-Log "Upgrading installed packages..."
     try {
         $UpgradeArgs = @("upgrade", "--all", "--include-unknown", "--accept-source-agreements", "--accept-package-agreements")
-        if (-not $Global:Unattended) {
+        if ($Global:WingetInteractive) {
+            $UpgradeArgs += "--interactive"
+        } else {
             $UpgradeArgs += "--silent"
         }
         winget $UpgradeArgs
@@ -45,7 +47,6 @@ if (Request-Confirmation "Do you want to install the package list?") {
 		"GitHub.cli"
 		
 		# --- Applications ---
-		"Microsoft.PowerToys",
 		"voidtools.Everything",
 		"RARLab.WinRAR",
 		"Google.GoogleDrive",
@@ -64,7 +65,9 @@ if (Request-Confirmation "Do you want to install the package list?") {
 			# --accept-source-agreements: Auto-accept license
 			# --accept-package-agreements: Auto-accept package license
 			$InstallArgs = @("install", "-e", "--id", $Pkg, "--accept-source-agreements", "--accept-package-agreements")
-			if (-not $Global:Unattended) {
+			if ($Global:WingetInteractive) {
+				$InstallArgs += "--interactive"
+			} else {
 				$InstallArgs += "--silent"
 			}
 			winget $InstallArgs
