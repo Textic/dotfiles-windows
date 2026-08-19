@@ -97,5 +97,5 @@
     "theme": "system",
     "themes": [],
     "useAcrylicInTabRow": true,
-    "windowingBehavior": "useAnyExisting"
+    "windowingBehavior": "useNew"
 }

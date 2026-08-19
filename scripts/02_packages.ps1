@@ -53,7 +53,8 @@ if (Request-Confirmation "Do you want to install the package list?") {
 		"Elgato.StreamDeck",
 		"Google.Chrome",
 		"Valve.Steam",
-		"Discord.Discord"
+		"Discord.Discord",
+		"CrystalRich.LockHunter"
 	)
 
 	Write-Log "Found $( $Packages.Count ) packages to process."
