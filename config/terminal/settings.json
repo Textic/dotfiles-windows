@@ -2,7 +2,7 @@
     "$help": "https://aka.ms/terminal-documentation",
     "$schema": "https://aka.ms/terminal-profiles-schema",
     "actions": [],
-    "alwaysOnTop": true,
+    "alwaysOnTop": false,
     "alwaysShowTabs": true,
     "copyFormatting": "none",
     "copyOnSelect": false,

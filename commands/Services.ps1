@@ -7,7 +7,7 @@ param(
 
 # Metadata definitions
 $Name = "Windows Services Optimization"
-$Description = "Stops and disables unnecessary telemetry, diagnostic, error reporting, delivery optimization, compatibility, printing, telephony, sensor, and caching services."
+$Description = "Optimizes Windows services by disabling unnecessary telemetry, diagnostics, delivery optimization, and configuring background services."
 
 $WhyEnable = @(
     "Telemetry, Analytics & Diagnostics (DiagTrack, dmwappushservice, DPS, InventorySvc, wuqisvc, whesvc): Disables diagnostic logging, telemetry routing, compatibility appraisal, usage insights, and Windows Health monitoring to protect privacy and free up background resources.",
@@ -15,39 +15,44 @@ $WhyEnable = @(
     "Error Reporting & Compatibility (WerSvc, PcaSvc): Disables automated crash reporting to Microsoft and Program Compatibility Assistant popups.",
     "Printing & Sensors (Spooler, SensorService): Disables the print spooler (for systems without printers) and sensor management (ambient light, auto-rotation).",
     "Telephony & Phone (TapiSrv, PhoneSvc): Disables legacy telephony/modem services and Phone Link background services.",
-    "Disk Caching & WebDAV (SysMain, WebClient): Disables Superfetch caching (unnecessary on SSDs/NVMes) and legacy WebDAV network client."
+    "Office Background Service (ClickToRunSvc): Sets Microsoft Office Click-to-Run startup type to Manual so it only runs on-demand when Office apps are launched.",
+    "Disk Caching & Network Tracking (SysMain, WebClient, TrkWks): Disables Superfetch caching (unnecessary on SSDs/NVMes), legacy WebDAV network client, and Distributed Link Tracking Client."
 )
 
 $WhyDisable = @(
-    "Restore Default Services: Restores startup types for all managed services back to their standard defaults (Automatic/Manual) and starts them."
+    "Restore Default Services: Restores startup types for all managed services back to their standard defaults (Automatic/Manual) and starts essential services."
 )
 
 # Target services definition list
 $ServicesToManage = @(
     # --- Telemetry & Diagnostics ---
-    @{ Name = "DiagTrack";        DefaultStartup = "Automatic"; Description = "Connected User Experiences and Telemetry" },
-    @{ Name = "dmwappushservice"; DefaultStartup = "Manual";    Description = "WAP Push Message Routing Service (Telemetry)" },
-    @{ Name = "DPS";              DefaultStartup = "Automatic"; Description = "Diagnostic Policy Service" },
-    @{ Name = "InventorySvc";     DefaultStartup = "Manual";    Description = "Inventory and Compatibility Appraisal Service" },
-    @{ Name = "wuqisvc";          DefaultStartup = "Manual";    Description = "Microsoft Usage and Quality Insights" },
-    @{ Name = "whesvc";           DefaultStartup = "Automatic"; Description = "Windows Health and Optimized Experiences" },
-    @{ Name = "WerSvc";           DefaultStartup = "Manual";    Description = "Windows Error Reporting Service" },
+    @{ Name = "DiagTrack";        TargetStartup = "Disabled"; DefaultStartup = "Automatic"; Description = "Connected User Experiences and Telemetry" },
+    @{ Name = "dmwappushservice"; TargetStartup = "Disabled"; DefaultStartup = "Manual";    Description = "WAP Push Message Routing Service (Telemetry)" },
+    @{ Name = "DPS";              TargetStartup = "Disabled"; DefaultStartup = "Automatic"; Description = "Diagnostic Policy Service" },
+    @{ Name = "InventorySvc";     TargetStartup = "Disabled"; DefaultStartup = "Manual";    Description = "Inventory and Compatibility Appraisal Service" },
+    @{ Name = "wuqisvc";          TargetStartup = "Disabled"; DefaultStartup = "Manual";    Description = "Microsoft Usage and Quality Insights" },
+    @{ Name = "whesvc";           TargetStartup = "Disabled"; DefaultStartup = "Automatic"; Description = "Windows Health and Optimized Experiences" },
+    @{ Name = "WerSvc";           TargetStartup = "Disabled"; DefaultStartup = "Manual";    Description = "Windows Error Reporting Service" },
 
     # --- Updates & Compatibility ---
-    @{ Name = "DoSvc";            DefaultStartup = "Automatic"; Description = "Delivery Optimization" },
-    @{ Name = "PcaSvc";           DefaultStartup = "Automatic"; Description = "Program Compatibility Assistant Service" },
+    @{ Name = "DoSvc";            TargetStartup = "Disabled"; DefaultStartup = "Automatic"; Description = "Delivery Optimization" },
+    @{ Name = "PcaSvc";           TargetStartup = "Disabled"; DefaultStartup = "Automatic"; Description = "Program Compatibility Assistant Service" },
 
     # --- Hardware, Printing & Sensors ---
-    @{ Name = "Spooler";          DefaultStartup = "Automatic"; Description = "Print Spooler" },
-    @{ Name = "SensorService";    DefaultStartup = "Manual";    Description = "Sensor Service" },
+    @{ Name = "Spooler";          TargetStartup = "Disabled"; DefaultStartup = "Automatic"; Description = "Print Spooler" },
+    @{ Name = "SensorService";    TargetStartup = "Disabled"; DefaultStartup = "Manual";    Description = "Sensor Service" },
 
     # --- Telephony & Phone Link ---
-    @{ Name = "TapiSrv";          DefaultStartup = "Manual";    Description = "Telephony" },
-    @{ Name = "PhoneSvc";         DefaultStartup = "Manual";    Description = "Phone Service" },
+    @{ Name = "TapiSrv";          TargetStartup = "Disabled"; DefaultStartup = "Manual";    Description = "Telephony" },
+    @{ Name = "PhoneSvc";         TargetStartup = "Disabled"; DefaultStartup = "Manual";    Description = "Phone Service" },
+
+    # --- Applications & Office ---
+    @{ Name = "ClickToRunSvc";    TargetStartup = "Manual";   DefaultStartup = "Automatic"; Description = "Microsoft Office Click-to-Run Service" },
 
     # --- System & Network ---
-    @{ Name = "SysMain";          DefaultStartup = "Automatic"; Description = "SysMain (Superfetch)" },
-    @{ Name = "WebClient";        DefaultStartup = "Manual";    Description = "WebClient" }
+    @{ Name = "SysMain";          TargetStartup = "Disabled"; DefaultStartup = "Automatic"; Description = "SysMain (Superfetch)" },
+    @{ Name = "WebClient";        TargetStartup = "Disabled"; DefaultStartup = "Manual";    Description = "WebClient" },
+    @{ Name = "TrkWks";           TargetStartup = "Disabled"; DefaultStartup = "Automatic"; Description = "Distributed Link Tracking Client" }
 )
 
 function Resolve-ServiceName {
@@ -117,20 +122,21 @@ function Set-ServiceStartupState {
 
 function Get-CurrentStatus {
     try {
-        $AllDisabled = $true
+        $AllOptimized = $true
         $FoundAny = $false
         foreach ($SvcDef in $ServicesToManage) {
             $ActualName = Resolve-ServiceName -Name $SvcDef.Name
             if ($ActualName) {
                 $FoundAny = $true
+                $Target = if ($SvcDef.TargetStartup) { $SvcDef.TargetStartup } else { "Disabled" }
                 $State = Get-ServiceStartupState -ServiceName $ActualName
-                if ($State -ne "Disabled") {
-                    $AllDisabled = $false
+                if ($State -ne $Target) {
+                    $AllOptimized = $false
                     break
                 }
             }
         }
-        return ($FoundAny -and $AllDisabled)
+        return ($FoundAny -and $AllOptimized)
     } catch {
         return $false
     }
@@ -153,14 +159,18 @@ if ($Status) {
 }
 
 if ($Enable) {
-    Write-Host "Stopping and disabling target Windows services..." -ForegroundColor Cyan
+    Write-Host "Optimizing target Windows services..." -ForegroundColor Cyan
     $Errors = 0
     foreach ($SvcDef in $ServicesToManage) {
         $ActualName = Resolve-ServiceName -Name $SvcDef.Name
         if ($ActualName) {
-            Write-Host "  -> Stopping and disabling $($SvcDef.Description) ($ActualName)..." -ForegroundColor Gray
-            Stop-Service -Name $ActualName -Force -ErrorAction SilentlyContinue
-            $Ok = Set-ServiceStartupState -ServiceName $ActualName -StartupType "Disabled"
+            $Target = if ($SvcDef.TargetStartup) { $SvcDef.TargetStartup } else { "Disabled" }
+            $ActionText = if ($Target -eq "Disabled") { "Stopping and disabling" } else { "Configuring startup to $Target for" }
+            Write-Host "  -> $ActionText $($SvcDef.Description) ($ActualName)..." -ForegroundColor Gray
+            if ($Target -eq "Disabled") {
+                Stop-Service -Name $ActualName -Force -ErrorAction SilentlyContinue
+            }
+            $Ok = Set-ServiceStartupState -ServiceName $ActualName -StartupType $Target
             if (-not $Ok) {
                 $Errors++
             }
@@ -169,7 +179,7 @@ if ($Enable) {
         }
     }
     if ($Errors -eq 0) {
-        Write-Host "Target services stopped and set to Disabled successfully." -ForegroundColor Green
+        Write-Host "Target services optimized successfully." -ForegroundColor Green
     } else {
         Write-Host "Target services processed with $Errors warning(s)." -ForegroundColor Yellow
     }
@@ -231,7 +241,7 @@ if (-not $PSBoundParameters.Count) {
     foreach ($Point in $WhyDisable) { Write-Host "  * $Point" -ForegroundColor Gray }
     Write-Host ""
 
-    $Question = if ($Current) { "Do you want to DISABLE '$Name' (restore defaults)?" } else { "Do you want to ENABLE '$Name' (stop & disable services)?" }
+    $Question = if ($Current) { "Do you want to DISABLE '$Name' (restore defaults)?" } else { "Do you want to ENABLE '$Name' (apply service optimizations)?" }
     $ActionToRun = if ($Current) { "-Disable" } else { "-Enable" }
 
     if (Get-Command "Request-Confirmation" -ErrorAction SilentlyContinue) {
